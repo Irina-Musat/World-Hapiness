@@ -25,6 +25,10 @@ features = ['Log GDP per capita', 'Social support', 'Healthy life expectancy at 
             'Positive affect', 'Negative affect', 'year']
 target = 'Life Ladder'
 
+t.sidebar.title("World Happiness Report")
+st.sidebar.image("happy.png", use_column_width=True)
+st.sidebar.write("Explore the factors that contribute to happiness across the world. Navigate through the sections to understand the data, visualize trends, and make predictions.")
+
 # Sidebar
 st.sidebar.title("Navigation")
 section = st.sidebar.radio("Gehe zu:", [

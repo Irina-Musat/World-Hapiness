@@ -172,10 +172,15 @@ if section == "📊 Data Visualization":
         st.write(highlighted_countries)
         st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years. Other factors likely play a role in people’s well-being. GDP per capita remains relatively high and stable throughout the years indicating Economic prosperity. However, happiness levels (the orange line) appears to be relatively stable but not strongly influenced by economic factors.")
 
-    if st.button("3.4 Ladder Score Across regional Indicators"):
+   if st.button("3.4 Ladder Score Across regional Indicators"):
         st.write("Ladder Score Across regional Indicators")
-        # Rename columns for consistency
-        df1.columns = ['Country name', 'year', 'Life Ladder', 'Perceptions of corruption', 'Region']
+        st.write("Columns in the dataset:", df1.columns)
+        # Check the number of columns
+        st.write("Number of columns:", len(df1.columns))
+
+        # Rename columns (ensure the number of columns match)
+        df1.columns = ['Country name', 'year', 'Life Ladder', 'Perceptions of corruption', 'Region', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth', 'Freedom to make life choices', 'Generosity', 'Positive affect', 'Negative affect']
+        
         # Line plot for Ladder score across Regional indicators
         fig = px.line(df1, x='Region', y='Life Ladder', title='Ladder Score Across Regional Indicators')
         fig.update_xaxes(tickangle=45)
