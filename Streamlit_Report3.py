@@ -152,7 +152,7 @@ if section == "📊 Data Visualization":
                  "Key Observation: 'Log GDP per capita' is the most important feature, with a significantly higher importance score compared to other features. "
                  "Lesser Features: Features like 'Generosity' and 'Year' have the lowest importance, indicating they contribute the least to the model's predictive power.")
 
-    if st.button("3.3 Trend Lines over time"):
+    if st.button("3.3 Corruption perception"):
         st.write("Trend Lines over time")
         # Determine the threshold for highest corruption perception (top 10%)
         threshold = df1['Perceptions of corruption'].quantile(0.90)
@@ -172,28 +172,16 @@ if section == "📊 Data Visualization":
         st.write(highlighted_countries)
         st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years. Other factors likely play a role in people’s well-being. GDP per capita remains relatively high and stable throughout the years indicating Economic prosperity. However, happiness levels (the orange line) appears to be relatively stable but not strongly influenced by economic factors.")
 
-     if st.button("3.4 Ladder Score Across regional Indicators"):
-        st.write("Ladder Score Across regional Indicators")
-        st.write("Columns in the dataset:", df1.columns)
-        st.write("Number of columns:", len(df1.columns))
-
-        # Check if 'Region' column exists
-        if 'Region' in df1.columns:
-            # Line plot for Ladder score across Regional indicators
-            fig = px.line(df1, x='Region', y='Life Ladder', title='Ladder Score Across Regional Indicators')
-            fig.update_xaxes(tickangle=45)
-            st.plotly_chart(fig)
-            
-            st.write("""
-                The target variable that our analysis will focus on is the 'Ladder score' or 'Ladder score in Dystopia'. 
-                These variables represent the measure of life satisfaction or happiness in the dataset. The 'Ladder score' 
-                is the main variable of interest, while 'Ladder score in Dystopia' provides a reference point for the lowest 
-                possible happiness score in the dataset. Therefore, our analysis will primarily focus on understanding and 
-                exploring the factors that influence the 'Ladder score' or 'Ladder score in Dystopia' and how other variables 
-                in the dataset contribute to or explain variations in the happiness scores across different regions or countries.
-            """)
-        else:
-            st.write("The dataset does not contain a 'Region' column. Please check the data.")
+     if st.button("3.4 Trend Lines over time"):
+        st.write("Trend Lines over time")
+        plt.figure(figsize=(12, 6))
+        sns.lineplot(x='year', y='Log GDP per capita', data=df1, label='Log GDP per capita')
+        sns.lineplot(x='year', y='Freedom to make life choices', data=df1, label='Freedom to make life choices')
+        sns.lineplot(x='year', y='Life Ladder', data=df1, label='Happiness Score')
+        plt.title('Trends Over Time')
+        plt.legend()
+        st.pyplot(plt)
+        st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years.")
 
     if st.button("3.5 Generosity Boxplot"):
         st.write("Generosity Boxplot")
