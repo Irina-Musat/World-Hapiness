@@ -172,21 +172,28 @@ if section == "📊 Data Visualization":
         st.write(highlighted_countries)
         st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years. Other factors likely play a role in people’s well-being. GDP per capita remains relatively high and stable throughout the years indicating Economic prosperity. However, happiness levels (the orange line) appears to be relatively stable but not strongly influenced by economic factors.")
 
-   if st.button("3.4 Ladder Score Across regional Indicators"):
+     if st.button("3.4 Ladder Score Across regional Indicators"):
         st.write("Ladder Score Across regional Indicators")
         st.write("Columns in the dataset:", df1.columns)
-        # Check the number of columns
         st.write("Number of columns:", len(df1.columns))
 
-        # Rename columns (ensure the number of columns match)
-        df1.columns = ['Country name', 'year', 'Life Ladder', 'Perceptions of corruption', 'Region', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth', 'Freedom to make life choices', 'Generosity', 'Positive affect', 'Negative affect']
-        
-        # Line plot for Ladder score across Regional indicators
-        fig = px.line(df1, x='Region', y='Life Ladder', title='Ladder Score Across Regional Indicators')
-        fig.update_xaxes(tickangle=45)
-        st.plotly_chart(fig)
-        st.write("The target variable that our analysis will focus on is the 'Ladder score' or 'Ladder score in Dystopia'. These variables represent the measure of life satisfaction or happiness in the dataset. The 'Ladder score' is the main variable of interest, while 'Ladder score in Dystopia' provides a reference point for the lowest possible happiness score in the dataset."
-                "Therefore, our analysis will primarily focus on understanding and exploring the factors that influence the 'Ladder score' or 'Ladder score in Dystopia' and how other variables in the dataset contribute to or explain variations in the happiness scores across different regions or countries.")
+        # Check if 'Region' column exists
+        if 'Region' in df1.columns:
+            # Line plot for Ladder score across Regional indicators
+            fig = px.line(df1, x='Region', y='Life Ladder', title='Ladder Score Across Regional Indicators')
+            fig.update_xaxes(tickangle=45)
+            st.plotly_chart(fig)
+            
+            st.write("""
+                The target variable that our analysis will focus on is the 'Ladder score' or 'Ladder score in Dystopia'. 
+                These variables represent the measure of life satisfaction or happiness in the dataset. The 'Ladder score' 
+                is the main variable of interest, while 'Ladder score in Dystopia' provides a reference point for the lowest 
+                possible happiness score in the dataset. Therefore, our analysis will primarily focus on understanding and 
+                exploring the factors that influence the 'Ladder score' or 'Ladder score in Dystopia' and how other variables 
+                in the dataset contribute to or explain variations in the happiness scores across different regions or countries.
+            """)
+        else:
+            st.write("The dataset does not contain a 'Region' column. Please check the data.")
 
     if st.button("3.5 Generosity Boxplot"):
         st.write("Generosity Boxplot")
