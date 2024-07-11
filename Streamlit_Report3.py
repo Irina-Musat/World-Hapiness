@@ -146,11 +146,7 @@ if section == "📊 Data Visualization":
                      width=900, height=500)
         fig.update_layout(yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(fig)
-        st.write("Title: The title 'Feature Importances' indicates that the graph displays the importance of various features in a model. "
-                 "X-Axis: The X-axis shows the 'Importance' of the features, with higher values indicating greater significance of the feature in the model."
-                 "Y-Axis: The Y-axis lists the different features used in the model, such as 'Log GDP per capita', 'Healthy life expectancy at birth', and others."
-                 "Key Observation: 'Log GDP per capita' is the most important feature, with a significantly higher importance score compared to other features. "
-                 "Lesser Features: Features like 'Generosity' and 'Year' have the lowest importance, indicating they contribute the least to the model's predictive power.")
+        st.write("The bar chart titled 'Feature Importances' shows the relative importance of various features in a predictive model or analysis.")
 
     if st.button("3.3 Corruption perception"):
         st.write("Trend Lines over time")
@@ -166,24 +162,9 @@ if section == "📊 Data Visualization":
         fig.add_scatter(x=high_corruption['Life Ladder'], y=high_corruption['Perceptions of corruption'], 
                         mode='markers', marker=dict(color='red', size=10), name='Highest corruption perception')
         st.plotly_chart(fig)
+        st.write("The scatter plot titled 'Relationship between Life Ladder and Perception of Corruption' illustrates the correlation between happiness scores (Life Ladder) and perceptions of corruption for various countries.")
 
-        # Display the highlighted countries
-        highlighted_countries = high_corruption[['Country name', 'Life Ladder', 'Perceptions of corruption']]
-        st.write(highlighted_countries)
-        st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years. Other factors likely play a role in people’s well-being. GDP per capita remains relatively high and stable throughout the years indicating Economic prosperity. However, happiness levels (the orange line) appears to be relatively stable but not strongly influenced by economic factors.")
-
-     if st.button("3.4 Trend Lines over time"):
-        st.write("Trend Lines over time")
-        plt.figure(figsize=(12, 6))
-        sns.lineplot(x='year', y='Log GDP per capita', data=df1, label='Log GDP per capita')
-        sns.lineplot(x='year', y='Freedom to make life choices', data=df1, label='Freedom to make life choices')
-        sns.lineplot(x='year', y='Life Ladder', data=df1, label='Happiness Score')
-        plt.title('Trends Over Time')
-        plt.legend()
-        st.pyplot(plt)
-        st.write("This graph suggests that economic prosperity (GDP per capita) doesn’t necessarily guarantee higher levels of freedom or happiness in the long run over the years.")
-
-    if st.button("3.5 Generosity Boxplot"):
+    if st.button("3.4 Generosity Boxplot"):
         st.write("Generosity Boxplot")
         required_columns = ['year', 'Log GDP per capita', 'Freedom to make life choices', 'Life Ladder']
         assert all(col in df1.columns for col in required_columns), "Ensure the dataset contains the necessary columns."
@@ -196,9 +177,9 @@ if section == "📊 Data Visualization":
         fig = px.box(df1_melted, x='year', y='Value', color='Variable', title='Box Plot of Target Variables by Year')
         fig.update_layout(xaxis_title='Year', yaxis_title='Values', legend_title='Variable')
         st.plotly_chart(fig)
-        st.write("Generosity scores show some fluctuations over the years. Observing these variations helps understand how global generosity perceptions change with time, influenced by various global and regional factors.")
+        st.write("This box plot provides a clear visual representation of how key metrics related to economic performance, social support, and happiness have evolved over time, highlighting their stability and variability across different years.")
 
-    if st.button("3.6 Log GDP per capita Trends Over Time for Top 5 and Bottom 5 Countries by Happiness Score"):
+    if st.button("3.5 Log GDP per capita Trends Over Time for Top 5 and Bottom 5 Countries by Happiness Score"):
         st.write("Log GDP per capita Trends Over Time for Top 5 and Bottom 5 Countries by Happiness Score")
         required_columns = ['year', 'Country name', 'Log GDP per capita', 'Freedom to make life choices', 'Life Ladder']
         assert all(col in df1.columns for col in required_columns)
@@ -217,4 +198,167 @@ if section == "📊 Data Visualization":
         fig = px.line(filtered_df, x='year', y='Log GDP per capita', color='Country name',
                       title='Log GDP per capita Trends Over Time for Top 5 and Bottom 5 Countries by Happiness Score')
         st.plotly_chart(fig)
-        st.write("The scatter plot displays the relationship between GDP per capita and happiness scores. There is a noticeable positive correlation, indicating that countries with higher")
+        st.write("This line chart provides a clear visual representation of how the economic performance (in terms of GDP per capita) has evolved over time for various countries, highlighting both stability in high-income countries and challenges in low-income countries.")
+
+# Multi-select box for country selection with a label
+    selected_countries = st.multiselect("Select countries to display", options=df1['Country name'].unique())
+
+# Button to generate the plot
+    if st.button("3.6 Generosity BoxplotInteractive Scatter Plot of Countries' Evolution Over Time"):
+        if selected_countries:
+            filtered_df = df1[df1['Country name'].isin(selected_countries)]
+
+        # Plot the scatter plot
+            fig = px.scatter(filtered_df, x='year', y='Life Ladder', color='Country name',
+                         title="Countries' Happiness Evolution Over Time",
+                         labels={'year': 'Year', 'Life Ladder': 'Happiness Score'},
+                         hover_data=['Country name', 'year', 'Life Ladder', 'Log GDP per capita', 'Social support',
+                                     'Healthy life expectancy at birth', 'Freedom to make life choices', 'Generosity',
+                                     'Perceptions of corruption', 'Positive affect', 'Negative affect'])
+            st.plotly_chart(fig)
+            st.write("The scatter plot is useful for visualizing how happiness scores and associated factors have evolved over time for different countries."
+	                 "It can help identify patterns, trends, and anomalies in the happiness data."
+	                 "The detailed hover information provides a comprehensive view of various factors that contribute to the happiness score, allowing for deeper analysis of the underlying causes of changes in happiness.")
+# Conclusion   
+# Define a function to display smilies
+def show_smilies():
+    st.markdown("<h1 style='text-align: center;'>😊😊😊</h1>", unsafe_allow_html=True)
+
+if section == "📌 Conclusion":
+    st.title("📌 Conclusion")
+    if st.button("6. Conclusion"):
+        st.write("In conclusion, this analysis provides a comprehensive overview of the World Happiness Report 2021. We examined various factors contributing to happiness and built predictive models to forecast happiness scores.")
+    
+    # Text to display
+    report_text = """
+    The World Happiness Report boldly challenges the narrow focus on economic growth as the sole measure of prosperity. It underscores that genuine happiness transcends material wealth, emphasizing the enduring significance of social connections, personal freedoms, and healthcare access.
+
+    Despite advancements in economic development, the report asserts that core human needs—security, belonging, and self-actualization—persist as essential elements of well-being across all societies. 
+    
+    **<span style="color: yellow;">Don't we already know something about this from another theory???</span>**
+    """
+    # Display the text in Streamlit
+    st.markdown(report_text, unsafe_allow_html=True)
+
+    # Data for feature importance
+    data = {
+        'Feature': [
+            'Log GDP per capita', 'Healthy life expectancy at birth', 'Positive affect',
+            'Social support', 'Freedom to make life choices', 'Country name',
+            'Perceptions of corruption', 'Negative affect', 'Generosity'
+        ],
+        'Importance': [
+            0.65, 0.18, 0.1, 0.08, 0.05, 0.03, 0.02, 0.015, 0.01
+        ]
+    }
+
+    # Create a DataFrame
+    df = pd.DataFrame(data)
+
+    # Create an interactive pie chart using Plotly
+    fig = px.pie(df, values='Importance', names='Feature',
+                 title='Feature Importances',
+                 labels={'Feature': 'Feature', 'Importance': 'Importance'},
+                 width=900, height=500)
+
+    # Show the plot using Streamlit
+    st.plotly_chart(fig)
+
+    # Add a radio button after the feature importance pie chart
+    st.write("### Do you agree with these feature importances?")
+    agreement = st.radio("", ("Yes", "No", "Maybe"))
+
+    if agreement:
+        st.write("Thank you for your valuable feedback.")
+        show_smilies()  # Show smilies
+
+    # Add another radio button to link to a well-known theory
+    st.write("### Let's link this to a well-known theory")
+    link_theory = st.radio("", ("No", "Yes"))
+
+    if link_theory == "Yes":
+        st.balloons()  # Display balloons
+
+        # Header
+        st.header("Maslow's Hierarchy of Needs and the World Happiness Report")
+
+        # Statement
+        st.write("Maslow's Hierarchy of Needs serves as a valuable guide for the World Happiness Report.")
+
+        # Data for the pyramid layers and components
+        data = {
+            'Maslow\'s Hierarchy of Needs': [
+                'Base of the Pyramid (Physiological Needs)',
+                'Second Layer (Safety Needs)',
+                'Second Layer (Safety Needs)',
+                'Second Layer (Safety Needs)',
+                'Third Layer (Love and Belonging Needs)',
+                'Third Layer (Love and Belonging Needs)',
+                'Fourth Layer (Esteem Needs)',
+                'Fourth Layer (Esteem Needs)',
+                'Top of the Pyramid (Self-Actualization Needs)',
+                'Top of the Pyramid (Self-Actualization Needs)'
+            ],
+            'Components': [
+                'Healthy life expectancy at birth (15.9%)',
+                'Log GDP per capita (57.3%)',
+                'Social support (7.05%)',
+                'Perceptions of corruption (1.32%)',
+                'Social support (7.05%)',
+                'Positive affect (8.81%)',
+                'Freedom to make life choices (4.41%)',
+                'Generosity (2.56%)',
+                'Freedom to make life choices (4.41%)',
+                'Negative affect (0.881%)'
+            ]
+        }
+
+        # Create a DataFrame
+        df = pd.DataFrame(data)
+
+        # Function to calculate total percentage of each layer
+        def calculate_layer_total_percentage(df):
+            df['Percentage'] = df['Components'].apply(lambda x: float(x.split('(')[1].split('%')[0]))
+            total_percentage = df.groupby('Maslow\'s Hierarchy of Needs')['Percentage'].sum().reset_index()
+            total_percentage['Total %'] = total_percentage['Percentage'].astype(int)
+            return total_percentage[['Maslow\'s Hierarchy of Needs', 'Total %']]
+
+        # Calculate the total percentage for each layer
+        df_totals = calculate_layer_total_percentage(df)
+
+        # Define colors for each layer
+        layer_colors = {
+            'Base of the Pyramid (Physiological Needs)': '#FF5733',  # Orange
+            'Second Layer (Safety Needs)': '#FFC300',  # Yellow
+            'Third Layer (Love and Belonging Needs)': '#C70039',  # Red
+            'Fourth Layer (Esteem Needs)': '#900C3F',  # Dark Red
+            'Top of the Pyramid (Self-Actualization Needs)': '#581845'  # Purple
+        }
+
+        # Map colors to the DataFrame
+        df_totals['Color'] = df_totals['Maslow\'s Hierarchy of Needs'].map(layer_colors)
+
+        # Create an interactive pie chart using Plotly
+        fig = px.pie(df_totals, values='Total %', names='Maslow\'s Hierarchy of Needs',
+                     title='Maslow\'s Hierarchy of Needs',
+                     color='Maslow\'s Hierarchy of Needs',
+                     color_discrete_map=layer_colors,
+                     labels={'Maslow\'s Hierarchy of Needs': 'Hierarchy Level', 'Total %': 'Percentage'},
+                     width=900, height=500)
+
+        # Show the plot using Streamlit
+        st.plotly_chart(fig)
+
+        # Create DataFrame for the table
+        df = pd.DataFrame(data)
+
+        # Function to apply color based on layer
+        def apply_layer_color(value):
+            layer = df.loc[value.index, 'Maslow\'s Hierarchy of Needs']
+            return [f'background-color: {layer_colors.get(layer.iloc[i], "white")}' for i in range(len(value))]
+
+        # Apply color to DataFrame style (optional)
+        styled_df = df.style.apply(apply_layer_color, subset=['Maslow\'s Hierarchy of Needs'])
+
+        # Display the styled table using Streamlit
+        st.write(styled_df)
