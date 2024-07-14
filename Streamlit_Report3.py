@@ -1,12 +1,17 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.graph_objects as go
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 # Laden der Daten
 X = pd.read_csv('combined_world_happiness_report.csv')
@@ -46,14 +51,58 @@ section = st.sidebar.radio("Gehe zu:", [
 
 # Intro
 if section == "👋 Intro":
-    st.title("👋 Intro")
-    if st.button("1.1 World Happiness Analysis"):
-        st.write("Understanding the happiness levels across different countries is essential for grasping the global state of well-being. This report delves into the World Happiness Report, with a focus on data from 2021.")
-    if st.button("1.2 Overview"):
-        st.write("In this analysis, we present a detailed examination of the World Happiness Report 2021.")
-    if st.button("1.3 Current State"):
-        st.write("The World Happiness Report 2021 provides a color-coded world map that depicts the happiness levels of different countries. These happiness scores are derived from six main factors: GDP per capita, Social support, Healthy life expectancy, Freedom, Generosity, Perceived corruption.")
-    if st.button("1.4 Visual Representation"):
+    st.title("👋 Introduction")
+    st.markdown("""
+    ### Welcome to the World Happiness Analysis Report!
+    Understanding happiness levels across different countries is essential for grasping the global state of well-being. This report delves into the World Happiness Report, with a focus on data from 2021.
+    """)
+    
+    # Adding an image from the World Happiness Report
+    st.image("https://cdn2.hubspot.net/hubfs/2388156/Imported_Blog_Media/The-World-Happiness-Report-4.jpg", caption="World Happiness Report")
+
+    # Adding an animation of cartoon kids smiling and waving
+    st.image("https://www.sandfieldparkschool.com/uploads/2/6/6/9/26691039/kids-waving_orig.gif", caption="Stay Happy!", use_column_width=True)
+
+    # Custom button styles for rainbow effect
+    button_style = """
+    <style>
+    .stButton > button {
+        background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(255,154,0,1) 16%, rgba(208,222,33,1) 33%, rgba(79,220,74,1) 50%, rgba(63,218,216,1) 66%, rgba(47,201,226,1) 83%, rgba(28,127,238,1) 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+    .stButton > button:hover {
+        opacity: 0.85;
+    }
+    </style>
+    """
+    st.markdown(button_style, unsafe_allow_html=True)
+
+    if st.button("World Happiness Analysis"):
+        st.markdown("""
+        ### World Happiness Analysis
+        Understanding the happiness levels across different countries is essential for grasping the global state of well-being. This report delves into the World Happiness Report, with a focus on data from 2021.
+        """)
+    if st.button("Overview"):
+        st.markdown("""
+        ### Overview
+        In this analysis, we present a detailed examination of the World Happiness Report 2021.
+        """)
+    if st.button("Current State"):
+        st.markdown("""
+        ### Current State
+        The World Happiness Report 2021 provides a color-coded world map that depicts the happiness levels of different countries. These happiness scores are derived from six main factors: GDP per capita, Social support, Healthy life expectancy, Freedom, Generosity, Perceived corruption.
+        """)
+
+    if st.button("Visual Representation"):
         st.write("To illustrate the global distribution of happiness, we present a world map highlighting the happiness levels of various countries.")
         # Heatmap erstellen und anzeigen
         fig = px.choropleth(df1, locations="Country name", locationmode="country names", color="Life Ladder",
@@ -61,43 +110,80 @@ if section == "👋 Intro":
                             title="World Heatmap")
         st.plotly_chart(fig)
 
+
 # Data exploration
-elif section == "🔍 Data exploration":
+if section == "🔍 Data exploration":
     st.title("🔍 Data exploration")
-    if st.button("2.1 Data Exploration"):
-        st.write("In this section, we will thoroughly examine the data from the World Happiness Report 2021. By delving into the dataset, we aim to uncover underlying patterns and significant observations that provide insights into the global state of happiness.")
-        # Laden der Daten
+    if st.button("Data Exploration"):
+        st.write("In this section, we thoroughly examine the data from the World Happiness Report 2021.")
+        st.write("Let's start by loading and exploring the dataset:")
+         # Laden der Daten
         df1 = pd.read_csv('combined_world_happiness_report.csv')
         st.write(df1.head())
-
-        st.write("A display of the number of unique values for each variable. Identifying the type of variable.")
+        st.write("Next we display the number of unique values for each variable. Identifying the type of variable.")
         unique_values = df1.nunique()
         variable_types = df1.dtypes
         st.write(unique_values, variable_types)
-
-        st.write("**Life Ladder (Happiness Score):** The global average happiness score (Life Ladder) is 5.47, indicating moderate levels of happiness across surveyed regions. Scores range from a low of 2.375 to a high of 8.019, reflecting significant variation in subjective well-being worldwide.")
-        st.write("**Log GDP per capita:** The average logarithm of GDP per capita is 9.37, suggesting a considerable disparity in economic development and income levels among countries. Log GDP per capita ranges from 6.635 (low-income) to 11.648 (high-income), highlighting substantial economic diversity globally.")
-        st.write("**Social support:** On average, social support scores 0.81, indicating that most regions report a high degree of social support networks. Scores vary widely, from a minimum of 0.29 to a maximum of 0.987, underscoring disparities in social cohesion and support systems.")
-        st.write("**Healthy life expectancy at birth:** The average healthy life expectancy at birth is 63.48 years, suggesting significant differences in health outcomes across populations. Healthy life expectancy ranges from 32.3 years to 77.1 years, reflecting disparities in healthcare access and quality globally.")
-        st.write("**Freedom to make life choices:** The average score for freedom to make life choices is 0.75, indicating varying levels of personal autonomy and political freedoms across surveyed regions. Scores range from 0.258 (low freedom) to 0.985 (high freedom), highlighting diverse levels of individual liberty and societal norms worldwide.")
-
-        # Quantitative Beschreibung
+           # Display key statistics about important variables
+        st.subheader("Key Statistics")
+        st.write("Here are the top five key statistics from the dataset:")
+        st.markdown("""
+        - ⭐ **Life Ladder (Happiness Score):** Average score is **5.47** with a range from **2.375** to **8.019**.
+        - 💰 **Log GDP per capita:** Average is **9.37** with values ranging from **6.635** to **11.648**.
+        - 🤝 **Social support:** Average score is **0.81** with values ranging from **0.29** to **0.987**.
+        - 🏥 **Healthy life expectancy:** Average is **63.48** years with a range from **32.3** to **77.1** years.
+        - 🕊️ **Freedom to make life choices:** Average score is **0.75** ranging from **0.258** to **0.985**.
+        """)
+        # Display quantitative description of the dataset
+        st.subheader("Quantitative Description")
+        st.write("Statistical summary of the dataset:")
         quantitative_description = df1.describe()
         df1.info()
         st.write(quantitative_description)
-
-    if st.button("2.2 Data Pre-processing"):
-        st.write("Before conducting our analysis, it is essential to clean and prepare the data. This process involves handling missing values, standardizing data formats, and ensuring the dataset is ready for in-depth analysis. Proper pre-processing ensures the accuracy and reliability of our findings.")
-        st.write("Data Loading and Visualization: The dataset combined_world_happiness_report.csv is loaded using Pandas (pd.read_csv()).")
-        st.write("Data Exploration: The code calculates the number of unique values for each variable (df1.nunique()) and identifies their data types (df1.dtypes).")
-        st.write("Handling Missing Data: It checks for missing values (NaN) within the dataset using df1.isna().sum().")
-        st.write("Statistical Analysis: Descriptive statistics (df1.describe()) are generated to understand the distribution and scale of quantitative variables.")
-        st.write("Data Preparation for Modeling: The dataset (df1) is split into training and testing sets (X_train, X_test, y_train, y_test) using train_test_split from sklearn.model_selection.")
-        st.write("Feature Engineering: Column names of the resulting datasets (X_train.columns, X_test.columns) are verified to ensure consistency and accuracy in feature sets.")
-        st.write("Categorical Data Encoding: Categorical variables are encoded: The 'Country name' column is encoded using LabelEncoder. Other categorical columns are encoded using OneHotEncoder to prepare them for model input.")
-        st.write("Feature Scaling: Data normalization is performed on X_train and X_test using StandardScaler to ensure all features have a comparable scale, preventing bias towards variables with larger ranges.")
-        st.write("Final Dataset Preparation: Encoded categorical features are integrated back into their respective datasets (X_train, X_test), ensuring the data is ready for further analysis or model training.")
-        st.write("Conclusion: The entire process prepares the dataset (df1) comprehensively for supervised learning tasks, addressing data integrity, feature engineering, and ensuring readiness for predictive modeling.")
+        # Include df1.describe() or other relevant statistical summaries here
+    if st.button("Data Pre-processing"):
+        st.write("Before analysing the data, we need to clean and prepare the data for accuracy and reliability.")
+        st.write("The nine essential steps in data pre-processing are as follows:")
+        # Using color and icons for each step
+        st.markdown("""<style>
+                    .data-step {
+                        background-color: #F0F0F0;
+                        color: #333333;
+                        padding: 10px;
+                        margin-bottom: 10px;
+                        border-radius: 5px;
+                    }
+                    .data-step-number {
+                        font-weight: bold;
+                        font-size: 18px;
+                        margin-right: 10px;
+                    }
+                    .data-step-icon {
+                        display: inline-block;
+                        font-size: 20px;
+                        padding: 5px;
+                        margin-right: 10px;
+                    }
+                    </style>""", unsafe_allow_html=True)
+        # Data Loading
+        st.markdown('<div class="data-step"><span class="data-step-number">1.</span><span class="data-step-icon">📊</span><strong>Data Loading:</strong> Load the dataset using Pandas (pd.read_csv()).</div>', unsafe_allow_html=True)
+        # Data Exploration
+        st.markdown('<div class="data-step"><span class="data-step-number">2.</span><span class="data-step-icon">🔍</span><strong>Data Exploration:</strong> Analyze unique values and data types.</div>', unsafe_allow_html=True)
+        # Handling Missing Data
+        st.markdown('<div class="data-step"><span class="data-step-number">3.</span><span class="data-step-icon">🔧</span><strong>Handling Missing Data:</strong> Check for NaN values using df1.isna().sum().</div>', unsafe_allow_html=True)
+        # Statistical Analysis
+        st.markdown('<div class="data-step"><span class="data-step-number">4.</span><span class="data-step-icon">📈</span><strong>Statistical Analysis:</strong> Compute descriptive statistics with df1.describe().</div>', unsafe_allow_html=True)
+        # Data Preparation for Modeling
+        st.markdown('<div class="data-step"><span class="data-step-number">5.</span><span class="data-step-icon">📊</span><strong>Data Preparation for Modeling:</strong> Split the dataset into training and testing sets.</div>', unsafe_allow_html=True)
+        # Feature Engineering
+        st.markdown('<div class="data-step"><span class="data-step-number">6.</span><span class="data-step-icon">⚙️</span><strong>Feature Engineering:</strong> Verify and process feature columns.</div>', unsafe_allow_html=True)
+        # Categorical Data Encoding
+        st.markdown('<div class="data-step"><span class="data-step-number">7.</span><span class="data-step-icon">🔤</span><strong>Categorical Data Encoding:</strong> Encode categorical variables using LabelEncoder and OneHotEncoder.</div>', unsafe_allow_html=True)
+        # Feature Scaling
+        st.markdown('<div class="data-step"><span class="data-step-number">8.</span><span class="data-step-icon">📏</span><strong>Feature Scaling:</strong> Normalize data with StandardScaler.</div>', unsafe_allow_html=True)
+        # Final Dataset Preparation
+        st.markdown('<div class="data-step"><span class="data-step-number">9.</span><span class="data-step-icon">🔧</span><strong>Final Dataset Preparation:</strong> Integrate encoded features for model readiness.</div>', unsafe_allow_html=True)
+        st.write("This comprehensive process ensures our dataset (df1) is well-prepared for further analysis or modeling.")
 
 # Data Visualization
 if section == "📊 Data Visualization":
@@ -219,6 +305,266 @@ if section == "📊 Data Visualization":
             st.write("The scatter plot is useful for visualizing how happiness scores and associated factors have evolved over time for different countries."
 	                 "It can help identify patterns, trends, and anomalies in the happiness data."
 	                 "The detailed hover information provides a comprehensive view of various factors that contribute to the happiness score, allowing for deeper analysis of the underlying causes of changes in happiness.")
+# Modeling
+elif section == "🧩 Modeling":
+    st.title("🧩 Modeling")
+
+    if st.button("4. Modeling"):
+        st.write("This chapter focuses on applying various machine learning techniques to predict happiness levels. Understanding the factors that influence happiness is essential for developing policies and strategies to enhance well-being globally. Accurate predictions can provide valuable insights into future trends in happiness and help identify areas needing intervention.")
+    
+    if st.button("Identifying Overfitting in the Evaluated Models"):
+        st.write("In the context of the models we evaluated, overfitting can be identified by looking at the differences between the performance metrics (R², MSE, RMSE, MAE) on the training and test sets. Here’s how to identify overfitting in the results:")
+
+        # Create the data for the table
+        data = {
+            'Model': ['Linear Regression', '', 'Decision Tree', '', 'Random Forest', '', 'Ridge', '', 'Gradient Boosting', '', 'Lasso', '', 'LassoCV', '', 'ElasticNet', ''],
+            'Dataset': ['Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set', 'Train Set', 'Test Set'],
+            'R²': ['0.753 😃', '0.75 😃', '1.0 😃', '0.732 😞', '0.979 😃', '0.862 😃', '0.753 😃', '0.75 😃', '0.878 😃', '0.813 😃', '0.0 😞', '0.0 😞', '0.753 😃', '0.75 😃', '0.396 😞', '0.391 😞'],
+            'MSE': ['0.321 😞', '0.316 😞', '0.0 😃', '0.338 😞', '0.027 😃', '0.174 😃', '0.321 😞', '0.316 😞', '0.159 😃', '0.236 😃', '1.298 😞', '1.263 😞', '0.321 😞', '0.316 😞', '0.784 😞', '0.769 😞'],
+            'RMSE': ['0.562 😞', '0.562 😞', '0.0 😃', '0.582 😞', '0.418 😃', '0.418 😃', '0.562 😞', '0.562 😞', '0.486 😃', '0.486 😃', '1.139 😞', '1.124 😞', '0.562 😞', '0.562 😞', '0.877 😞', '0.877 😞'],
+            'MAE': ['0.447 😞', '0.447 😞', '0.0 😃', '0.428 😞', '0.325 😃', '0.325 😃', '0.447 😞', '0.447 😞', '0.388 😃', '0.388 😃', '0.927 😞', '0.927 😞', '0.447 😞', '0.447 😞', '0.715 😞', '0.715 😞']
+        }
+
+        # Create a DataFrame
+        df = pd.DataFrame(data)
+
+        # Display the DataFrame
+        st.write(df.to_html(index=False), unsafe_allow_html=True)
+
+    # Button Identifying the Optimal Model
+    if st.button("Identifying the Optimal Model: Comparative Analysis and Rationale"):
+        st.write("Random Forest: The Model of Choice")
+        st.write("""
+        Random Forests often stand out as one of the best models for various reasons, particularly due to their balance between accuracy and robustness. Here’s a detailed explanation of why Random Forest might be the best model in this context:
+
+        Below, we analyze and compare the performance of each model to determine which stands out as the best choice for our application.
+        - **Linear Regression:** The performance metrics are quite similar between the training and test sets, indicating that Linear Regression is not overfitting.
+        - **Decision Tree Regressor:** The Decision Tree Regressor shows a perfect R² on the training set but significantly worse on the test set. This is a clear indication of overfitting.
+        - **Random Forest Regressor:** While the performance is very high on both the training and test sets, the slight drop in performance on the test set indicates mild overfitting, though Random Forests tend to be more robust against overfitting due to averaging multiple trees.
+        - **Ridge Regression:** Ridge Regression performs similarly on both the training and test sets, indicating no overfitting.
+        - **Gradient Boosting Regressor:** Gradient Boosting also shows good performance on both sets, with a slight indication of overfitting.
+        - **Lasso:** Lasso is clearly underfitting as it performs poorly on both the training and test sets.
+        - **LassoCV:** LassoCV, like Ridge, performs similarly on both sets, indicating no overfitting.
+        - **ElasticNet:** ElasticNet shows similar performance on both sets, indicating no overfitting.
+
+        **Conclusion:**
+        Random Forest stands out as the best model due to its high accuracy, robustness against overfitting, ability to handle different types of data, and relative ease of use. Its performance metrics indicate it generalizes well from training to test data, making it a reliable choice for predictive modeling.
+        """)
+    # Button Random Forest Regressor
+    if st.button("Random Forest Regressor"):
+        st.write("Random Forest is an ensemble learning method used for classification and regression tasks. It constructs multiple decision trees during training and merges their results to improve accuracy and control overfitting. Each tree is trained on a random subset of the data and features, which enhances robustness and reduces variance. The final prediction is made by averaging the results (regression) or taking the majority vote (classification). This approach leverages the power of multiple models to deliver high performance and reliability. Random Forest is widely appreciated for its accuracy and ease of use.")
+
+        # Drop rows with missing values
+        data = X.dropna()
+
+        # Define features and target variable
+        features_rf = ['Log GDP per capita', 'Social support', 'Healthy life expectancy at birth', 
+                    'Freedom to make life choices', 'Generosity', 'Perceptions of corruption']
+        target_rf = 'Life Ladder'
+
+        # Train-Test Split
+        X_rf = data[features_rf]
+        y_rf = data[target_rf]
+        X_train_rf, X_test_rf, y_train_rf, y_test_rf = train_test_split(X_rf, y_rf, test_size=0.2, random_state=42)
+
+        # Initialize and train the Random Forest Regressor model
+        random_forest = RandomForestRegressor(random_state=42)
+        random_forest.fit(X_train_rf, y_train_rf)
+        y_pred_rf = random_forest.predict(X_test_rf)
+
+        # Feature Importance Barplot (Random Forest Regressor)
+        fig1, ax1 = plt.subplots(figsize=(10, 6))
+        importance = random_forest.feature_importances_
+        ax1.barh(features_rf, importance)
+        ax1.set_xlabel('Importance')
+        ax1.set_title('Feature Importance (Random Forest Regressor)')
+        st.pyplot(fig1)
+
+        # Scatter Plot (Actual vs Predicted)
+        fig2, ax2 = plt.subplots(figsize=(8, 6))
+        ax2.scatter(y_test_rf, y_pred_rf, alpha=0.5)
+        ax2.plot([y_test_rf.min(), y_test_rf.max()], [y_test_rf.min(), y_test_rf.max()], 'k--', lw=2)
+        ax2.set_xlabel('Actual')
+        ax2.set_ylabel('Predicted')
+        ax2.set_title('Random Forest Regressor: Actual vs Predicted Happiness Score')
+        st.pyplot(fig2)
+
+        # Model Metrics
+        mse_rf = mean_squared_error(y_test_rf, y_pred_rf)
+        rmse_rf = np.sqrt(mse_rf)
+        r2_rf = r2_score(y_test_rf, y_pred_rf)
+        mae_rf = mean_absolute_error(y_test_rf, y_pred_rf)
+
+# Button Overfitting Analysis in Model Training
+    if st.button("Overfitting Analysis in Model Training"):
+        st.write("In our machine learning models for predicting happiness levels, we ensure that they generalize well to new data. Avoiding overfitting is crucial, where the model performs exceptionally well on training data but poorly on test data due to capturing noise and outliers.")
+
+        st.write("To investigate overfitting, we varied the max_depth parameter of a Random Forest Regressor and observed its impact on model performance. The max_depth parameter controls tree depth, influencing model complexity.")
+
+        # Drop rows with missing values (ensuring consistent data handling)
+        data = X.dropna()
+
+        # Define features and target variable for analysis
+        features_rf = ['Log GDP per capita', 'Social support', 'Healthy life expectancy at birth', 
+                    'Freedom to make life choices', 'Generosity', 'Perceptions of corruption']
+        target_rf = 'Life Ladder'
+
+        # Train-Test Split
+        X_rf = data[features_rf]
+        y_rf = data[target_rf]
+        X_train, X_test, y_train, y_test = train_test_split(X_rf, y_rf, test_size=0.2, random_state=42)
+
+        # Lists to store scores
+        train_scores = []
+        test_scores = []
+        max_depths = range(1, 21)
+
+        # Iterate over values of max_depth
+        for max_depth in max_depths:
+            model = RandomForestRegressor(max_depth=max_depth, random_state=42)
+            model.fit(X_train, y_train)
+
+            # Predictions
+            y_train_pred = model.predict(X_train)
+            y_test_pred = model.predict(X_test)
+
+            # Calculate R² scores
+            train_r2 = r2_score(y_train, y_train_pred)
+            test_r2 = r2_score(y_test, y_test_pred)
+
+            # Add scores to the lists
+            train_scores.append(train_r2)
+            test_scores.append(test_r2)
+
+        # Plot the scores
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(max_depths, train_scores, label='Train R²')
+        ax.plot(max_depths, test_scores, label='Test R²')
+        ax.set_xlabel('max_depth')
+        ax.set_ylabel('R² Score')
+        ax.set_title('Random Forest: max_depth vs R² Score')
+        ax.legend()
+        ax.grid(True)
+        st.pyplot(fig)
+
+        st.write("Observations from the Graph:")
+        st.write("Initial Increase (max_depth 1 to 3): Both the train R² and test R² scores rise sharply, indicating that increasing the tree depth initially allows the model to capture more underlying patterns. The lines are closest in this range, suggesting good generalization without overfitting.")
+        st.write("Moderate Increase (max_depth 4 to 5): R² scores continue to rise, but more slowly. The training and test R² values start to diverge slightly, indicating the onset of overfitting as the model begins to memorize the training data.")
+        st.write("Parallel and Divergence (max_depth 7,5 and beyond): The train R² score continues to increase, approaching perfect fit. The widening gap between train and test R² scores signifies overfitting. The model becomes overly complex, capturing noise and specifics of the training data that do not generalize to new, unseen data.")
+
+    # Button für Strategien zur Vermeidung von Overfitting
+    if st.button("Strategies to Prevent Overfitting"):
+        st.subheader("Strategies to Prevent Overfitting")
+        st.write("""
+        **Cross-Validation:**  
+        Use techniques like K-fold cross-validation to ensure that the model's performance is consistent across different subsets of the data.
+        
+        **Regularization:**  
+        Techniques like Ridge, Lasso, and ElasticNet add penalties for large coefficients to the loss function, helping to reduce overfitting by constraining the model complexity.
+        
+        **Pruning (for Decision Trees):**  
+        Limit the depth of the tree, the number of leaf nodes, or the minimum samples required to split a node.
+        
+        **Ensemble Methods:**  
+        Models like Random Forests and Gradient Boosting aggregate predictions from multiple models, reducing the risk of overfitting.
+        
+        **Early Stopping:**  
+        For iterative algorithms like Gradient Boosting, stop training when the model’s performance on a validation set starts to degrade.
+        
+        **Dropout (for Neural Networks):**  
+        Randomly dropping units during training helps to prevent overfitting by making the network less sensitive to the specific weights of individual neurons.
+        """)
+
+        st.subheader("Model Comparison")
+
+        models = ['Linear Regression', 'Decision Tree', 'Random Forest', 'Ridge', 'Gradient Boosting', 'Lasso', 'LassoCV', 'ElasticNet']
+        train_r2 = [0.753, 1.0, 0.979, 0.753, 0.878, 0.0, 0.753, 0.396]
+        test_r2 = [0.75, 0.732, 0.862, 0.75, 0.813, 0.0, 0.75, 0.391]
+        train_mse = [0.321, 0.0, 0.027, 0.321, 0.159, 1.298, 0.321, 0.784]
+        test_mse = [0.316, 0.338, 0.174, 0.316, 0.236, 1.263, 0.316, 0.769]
+
+        # Set up the figure and axes
+        fig, axs = plt.subplots(1, 2, figsize=(14, 6))
+
+        # Plot R² scores
+        axs[0].bar(np.arange(len(models)), train_r2, width=0.4, label='Train R²', align='center')
+        axs[0].bar(np.arange(len(models)) + 0.4, test_r2, width=0.4, label='Test R²', align='center')
+        axs[0].set_xticks(np.arange(len(models)) + 0.2)
+        axs[0].set_xticklabels(models, rotation=45, ha='right')
+        axs[0].set_title('R² Scores')
+        axs[0].set_ylabel('R²')
+        axs[0].legend()
+
+        # Plot MSE
+        axs[1].bar(np.arange(len(models)), train_mse, width=0.4, label='Train MSE', align='center')
+        axs[1].bar(np.arange(len(models)) + 0.4, test_mse, width=0.4, label='Test MSE', align='center')
+        axs[1].set_xticks(np.arange(len(models)) + 0.2)
+        axs[1].set_xticklabels(models, rotation=45, ha='right')
+        axs[1].set_title('Mean Squared Error (MSE)')
+        axs[1].set_ylabel('MSE')
+        axs[1].legend()
+
+        plt.tight_layout()
+        st.pyplot(fig)
+
+        st.write("""
+        The first plot shows the R² scores for the training and test sets, and the second plot shows the Mean Squared Error (MSE) for the training and test sets. Models that are overfitting will have a large discrepancy between the training and test set performance, particularly noticeable in the Decision Tree Regressor in this example.
+        """)
+
+
+# Prediction
+elif section == "🔮 Prediction":
+    st.title("🔮 Prediction")
+
+    # Create sliders for input features
+    log_gdp = st.slider('Log GDP per capita', float(X['Log GDP per capita'].min()), float(X['Log GDP per capita'].max()), float(X['Log GDP per capita'].mean()))
+    social_support = st.slider('Social support', float(X['Social support'].min()), float(X['Social support'].max()), float(X['Social support'].mean()))
+    healthy_life_expectancy = st.slider('Healthy life expectancy at birth', float(X['Healthy life expectancy at birth'].min()), float(X['Healthy life expectancy at birth'].max()), float(X['Healthy life expectancy at birth'].mean()))
+    freedom = st.slider('Freedom to make life choices', float(X['Freedom to make life choices'].min()), float(X['Freedom to make life choices'].max()), float(X['Freedom to make life choices'].mean()))
+    generosity = st.slider('Generosity', float(X['Generosity'].min()), float(X['Generosity'].max()), float(X['Generosity'].mean()))
+    corruption = st.slider('Perceptions of corruption', float(X['Perceptions of corruption'].min()), float(X['Perceptions of corruption'].max()), float(X['Perceptions of corruption'].mean()))
+    positive_affect = st.slider('Positive affect', float(X['Positive affect'].min()), float(X['Positive affect'].max()), float(X['Positive affect'].mean()))
+    negative_affect = st.slider('Negative affect', float(X['Negative affect'].min()), float(X['Negative affect'].max()), float(X['Negative affect'].mean()))
+    year = st.slider('Year', int(X['year'].min()), int(X['year'].max()), int(X['year'].mean()))
+
+    # Prepare input data for prediction
+    input_data = pd.DataFrame({
+        'Log GDP per capita': [log_gdp],
+        'Social support': [social_support],
+        'Healthy life expectancy at birth': [healthy_life_expectancy],
+        'Freedom to make life choices': [freedom],
+        'Generosity': [generosity],
+        'Perceptions of corruption': [corruption],
+        'Positive affect': [positive_affect],
+        'Negative affect': [negative_affect],
+        'year': [year]
+    })
+
+    # Load model
+    modele = charger_modele()
+
+    # Predict the Life Ladder score
+    prediction = modele.predict(input_data)
+
+    # Display the prediction
+    st.write(f"The predicted Life Ladder score is: {prediction[0]:.2f}")
+
+    # Search field for country
+    country = st.text_input("Search for a country:")
+    
+    if country:
+        country_data = X[X['Country name'] == country]
+        if not country_data.empty:
+            avg_country_data = country_data[features].mean().to_frame().T
+            avg_country_data[target] = country_data[target].mean()
+            st.write("Selected country data (average values):")
+            st.dataframe(avg_country_data)
+            
+            st.write(f"The average Life Ladder score for {country} is: **{avg_country_data[target].values[0]:.2f}**")
+        else:
+            st.write("Country not found in the dataset.")
+
+# Conclusion
 # Conclusion   
 # Define a function to display smilies
 def show_smilies():
